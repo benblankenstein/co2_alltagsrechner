@@ -7,7 +7,7 @@ st.title("CO₂-Alltagsrechner")
 
 # Textanzeige
 st.write("Kompensiere **ALLE** deine Emissionen. Dieser kleine Rechner berechnet die CO₂-eq-Emissionen, die im Alltag "
-         "entstehen. Dabei werden die Emissionsquellen in Kategorien unterteilt: Ernährung, Verkehr, Konsum und "
+         "entstehen. Dabei werden die Emissionsquellen in Kategorien unterteilt: Ernährung, Transport, Konsum und "
          "Haushalt. Grundlage sind Daten aus der Probas-Datenbank. Diese Werte wurden durch verschiedene Annahmen in "
          "Werte umgerechnet, die im Alltag vorkommen. Der Rechner erhebt keinen Anspruch auf Vollständigkeit, sondern "
          "soll ein Gefühl dafür vermitteln, welche Handlungen im Alltag welche Emissionen verursachen.")
@@ -47,7 +47,7 @@ multiplikatoren = {
 
 # Zuordnung zu Kategorien
 kategorien = {
-    "Essen": ["Gemüse", "Reis", "Äpfel", "Bananen", "Rindfleisch", "Hähnchen", "Fisch", "Brot", "Eier", "Käse"],
+    "Ernährung": ["Gemüse", "Reis", "Äpfel", "Bananen", "Rindfleisch", "Hähnchen", "Fisch", "Brot", "Eier", "Käse"],
     "Transport": ["Bus", "PKW (Verbrenner)", "PKW (Elektro)", "Zug", "Fahrrad"],
     "Konsum": ["Bestellte Klamotten", "Zeitungen/Bücher"],
     "Haushalt": ["Strom und Heizwärme", "Warmwasser (Duschen)", "Kochen", "Trinkwasser"]
@@ -81,20 +81,17 @@ fragen = {
 inputs = {}
 gesamt_emissionen = {kategorie: {aktivität: 0 for aktivität in kategorien[kategorie]} for kategorie in kategorien}
 
-# Eingabe sammeln und Berechnung durchführen
-for key in multiplikatoren:
-    frage = fragen[key]
-    inputs[key] = st.text_input(frage, value="0")
+# Eingabe sammeln und Berechnung durchführen, nach Kategorien sortiert
+for kategorie, aktivitäten in kategorien.items():
+    st.header(kategorie)
+    for aktivität in aktivitäten:
+        frage = fragen[aktivität]
+        inputs[aktivität] = st.text_input(frage, value="0")
 
-    # Emissionen berechnen
-    formel = multiplikatoren[key]
-    input_value = inputs[key]
-    emissionen = berechne_emissionen(input_value, formel)
-
-    # Kategorie identifizieren und Emissionen hinzufügen
-    for kategorie, aktivitäten in kategorien.items():
-        if key in aktivitäten:
-            gesamt_emissionen[kategorie][key] = emissionen
+        formel = multiplikatoren[aktivität]
+        input_value = inputs[aktivität]
+        emissionen = berechne_emissionen(input_value, formel)
+        gesamt_emissionen[kategorie][aktivität] = emissionen
 
 # Berechnung der Gesamt-Emissionen
 gesamt_emissionen_kategorie = {kategorie: sum(gesamt_emissionen[kategorie].values()) for kategorie in gesamt_emissionen}
